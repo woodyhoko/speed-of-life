@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Time Perception Timeline</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #e6edf3;
+            --accent-color: #58a6ff;
+            --secondary-color: #8b949e;
+            --card-bg: rgba(22, 27, 34, 0.8);
+            --block-base-color: #238636;
+            --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        #app {
+            /* Full Width for Responsive Layout */
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        header {
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(120deg, #58a6ff, #d2a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .description {
+            max-width: 600px;
+            margin: 0 auto;
+            color: var(--secondary-color);
+            font-size: 1rem;
+        }
+
+
+        .controls {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--card-bg);
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .controls label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 200px;
+            cursor: pointer;
+        }
+
+        /* 
+       PHASE 14 & 15: GRID LAYOUT + WRAPPING FUTURE
+       - Columns: Left Spacer (25%) | Center (50%) | Right Spacer (25%)
+       - Row 1: Amnesia | Active
+       - Row 2: Future (Wrapping)
+    */
+
+        /* Main Wrapper - Grid System */
+        .timeline-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 50% 1fr;
+            /* Center is strict 50% */
+            grid-template-rows: auto auto;
+            /* Two rows */
+            align-items: center;
+            justify-items: center;
+            gap: 15px;
+            margin-top: 2rem;
+            width: 100%;
+            height: auto;
+            padding: 0 10px;
+            box-sizing: border-box;
+            padding-bottom: 2rem;
+        }
+
+        /* Base Card Style */
+        .timeline-section {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            height: 200px;
+            /* REDUCED HEIGHT (Phase 17) - Was 300px */
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            width: 100%;
+            /* Fill their grid cell */
+        }
+
+        /* 1. Amnesia Panel - LEFT */
+        .amnesia-section {
+            grid-column: 1;
+            grid-row: 1;
+            justify-self: end;
+            /* Align to the RIGHT of the left column */
+
+            background: rgba(48, 54, 61, 0.4);
+            border: 1px solid #30363d;
+
+            /* Shrink Wrap Logic */
+            width: fit-content;
+            max-width: 100%;
+            min-width: 150px;
+
+            overflow-x: auto;
+        }
+
+        /* 2. Active Memory Panel - CENTER */
+        .active-section {
+            grid-column: 2;
+            grid-row: 1;
+
+            background: rgba(13, 17, 23, 0.9);
+            border: 2px solid #58a6ff;
+            box-shadow: 0 0 40px rgba(88, 166, 255, 0.15);
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        /* 3. Future Panel - BOTTOM (Wrapping) */
+        .future-section {
+            grid-column: 2;
+            /* COLUMN 2 (Same as Active) */
+            grid-row: 2;
+            /* ROW 2 */
+
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px dashed #30363d;
+
+            /* Phase 15: WRAP CONTENT */
+            display: flex;
+            flex-wrap: wrap;
+            /* WRAP enabled */
+            align-content: flex-start;
+            /* Pack to top */
+            justify-content: flex-start;
+
+            height: auto;
+            /* Allow Growth */
+            min-height: 200px;
+            /* Match others initially (Phase 17 update) */
+
+            overflow-x: visible;
+            /* No scrollbar */
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+
+        /* Scrollbar Handling */
+        .timeline-section::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .timeline-section::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline-section::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 3px;
+        }
+
+        .timeline-section::-webkit-scrollbar-thumb:hover {
+            background: #58a6ff;
+        }
+
+
+        .year-block {
+            height: 100%;
+            /* Width set via JS */
+            background: linear-gradient(180deg, #1f6feb, #238636);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        /* Specific fix for Future Blocks in wrapping container */
+        .future-section .year-block {
+            height: 200px;
+            /* REDUCED HEIGHT (Phase 17) - Was 300px */
+            border-bottom: 1px dashed #333;
+        }
+
+        /* Hover effect */
+        .year-block:hover {
+            transform: scaleY(1.05);
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .year-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            opacity: 0.8;
+            pointer-events: none;
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+        }
+
+        .year-label {
+            font-weight: 800;
+            font-size: 0.8rem;
+        }
+
+        .year-percentage {
+            font-family: monospace;
+            font-size: 0.7rem;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            color: var(--secondary-color);
+            font-size: 0.8rem;
+        }
+
+        /* Scroll animation entry */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .year-block {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* PHASE 18: MOBILE RESPONSIVENESS */
+        @media (max-width: 768px) {
+            .timeline-wrapper {
+                grid-template-columns: 1fr;
+                /* Single column */
+                grid-template-rows: auto auto auto;
+                /* Stack vertically */
+                gap: 2rem;
+            }
+
+            .amnesia-section,
+            .active-section {
+                grid-column: 1;
+                /* Force to column 1 */
+                grid-row: auto;
+                width: 100%;
+                height: 200px;
+                /* Fixed height for scrollable panels */
+                max-width: 100%;
+                justify-self: stretch;
+            }
+
+            /* FIX: Let Future Panel grow on mobile */
+            .future-section {
+                grid-column: 1;
+                grid-row: auto;
+                width: 100%;
+                height: auto;
+                min-height: 200px;
+                max-width: 100%;
+                justify-self: stretch;
+            }
+
+            .amnesia-section {
+                justify-self: stretch;
+                /* Override previous 'end' alignment */
+            }
+        }
+
+        /* PHASE 18: CUSTOM TOOLTIP */
+        .custom-tooltip {
+            position: fixed;
+            background: rgba(13, 17, 23, 0.95);
+            border: 1px solid #58a6ff;
+            color: #e6edf3;
+            padding: 12px;
+            border-radius: 8px;
+            pointer-events: none;
+            /* Let mouse pass through */
+            z-index: 9999;
+            display: none;
+            /* Hidden by default */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            backdrop-filter: blur(5px);
+            min-width: 150px;
+        }
+
+        .custom-tooltip .tooltip-header {
+            font-weight: 800;
+            color: #58a6ff;
+            border-bottom: 1px solid rgba(88, 166, 255, 0.3);
+            padding-bottom: 4px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .custom-tooltip .tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <h1>The Speed of Life</h1>
+            <p class="subtitle">Visualizing Paul Janet's "Proportional Theory" of Time Perception</p>
+            <p class="description">
+                Why did summer last forever when you were a kid, but flies by now?
+                This timeline shows the <strong>relative duration</strong> of each year as a percentage of your life up
+                to that
+                point.
+            </p>
+        </header>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="max-age">Lifespan: <span id="max-age-value">80</span> years</label>
+                <input type="range" id="max-age" min="10" max="100" value="80" />
+            </div>
+
+            <div class="control-group">
+                <label for="current-age">Current Age: <span id="current-age-value">30</span></label>
+                <input type="range" id="current-age" min="1" max="100" value="30" />
+            </div>
+
+            <div class="control-group">
+                <label for="decay-factor">Memory Decay: <span id="decay-factor-value">1</span></label>
+                <input type="range" id="decay-factor" min="0" max="2.0" step="0.05" value="1" />
+            </div>
+
+            <div class="control-group">
+                <label for="memory-start">Memory Start Age: <span id="memory-start-value">6</span></label>
+                <input type="range" id="memory-start" min="0" max="10" step="1" value="6" />
+            </div>
+
+            <div class="control-group analysis-group"
+                style="width: 100%; margin-top: 1rem; border-top: 1px solid #30363d; padding-top: 1rem;">
+                <label>Memory Comparator</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <span>How much of my memory is from before age</span>
+                    <input type="number" id="compare-age" value="18"
+                        style="width: 60px; padding: 5px; border-radius: 4px; border: 1px solid #30363d; background: #0d1117; color: white;" />
+                    <span>?</span>
+                    <span style="margin-left: auto; font-weight: bold; color: #58a6ff;">Result: <span
+                            id="compare-result">--%</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-wrapper">
+            <div id="amnesia-container" class="timeline-section amnesia-section">
+                <!-- Amnesia Blocks -->
+            </div>
+            <div id="active-container" class="timeline-section active-section">
+                <!-- Active Memory Blocks -->
+            </div>
+            <div id="future-container" class="timeline-section future-section">
+                <!-- Future Blocks -->
+            </div>
+        </div>
+
+        <footer>
+            <p>Created with Vite & Vanilla JS</p>
+        </footer>
+
+        <!-- Custom Tooltip Element -->
+        <div id="custom-tooltip" class="custom-tooltip"></div>
+
+    </div>
+    <script>
+        // Main JS Logic (Phase 18 Updated)
+        const maxAgeInput = document.getElementById('max-age');
+        const maxAgeValue = document.getElementById('max-age-value');
+        const currentAgeInput = document.getElementById('current-age');
+        const currentAgeValue = document.getElementById('current-age-value');
+        const decayFactorInput = document.getElementById('decay-factor');
+        const decayFactorValue = document.getElementById('decay-factor-value');
+        const memoryStartInput = document.getElementById('memory-start');
+        const memoryStartValue = document.getElementById('memory-start-value');
+
+        // Analysis Inputs
+        const compareAgeInput = document.getElementById('compare-age');
+        const compareResult = document.getElementById('compare-result');
+
+        // Tooltip
+        const tooltip = document.getElementById('custom-tooltip');
+
+        // Containers
+        const amnesiaContainer = document.getElementById('amnesia-container');
+        const activeContainer = document.getElementById('active-container');
+        const futureContainer = document.getElementById('future-container');
+
+        // Power Law of Forgetting Formula: At^-k
+        function calculatePerception(age, currentAge, decayRate) {
+            const perceptionRaw = 1 / age;
+            const yearsAgo = currentAge - age;
+            // R = At^-k. We use (yearsAgo + 1) safely.
+            return perceptionRaw * Math.pow(yearsAgo + 1, -decayRate);
+        }
+
+        function updateAnalysis(totalActivePerception, currentAge, decayRate, memoryStart) {
+            if (!compareAgeInput) return;
+
+            const targetAge = parseInt(compareAgeInput.value);
+            if (!targetAge || targetAge < memoryStart) {
+                compareResult.innerText = "0%";
+                return;
+            }
+
+            // Sum perception from MemoryStart -> Min(TargetAge, CurrentAge)
+            let cumulative = 0;
+            const endAge = Math.min(targetAge, currentAge);
+
+            for (let age = memoryStart; age <= endAge; age++) {
+                cumulative += calculatePerception(age, currentAge, decayRate);
+            }
+
+            if (totalActivePerception > 0) {
+                const percent = (cumulative / totalActivePerception) * 100;
+                compareResult.innerText = `${percent.toFixed(1)}%`;
+            } else {
+                compareResult.innerText = "0%";
+            }
+        }
+
+        // Tooltip Handlers
+        function handleMouseEnter(e, data) {
+            if (!tooltip) return;
+
+            tooltip.innerHTML = `
+        <span class="tooltip-header">Age ${data.age}</span>
+        <div class="tooltip-row"><span>Type:</span> <strong>${data.type}</strong></div>
+        <div class="tooltip-row"><span>Impact:</span> <strong>${data.percent}</strong></div>
+        <div class="tooltip-row"><span>Raw Duration:</span> <span>${(1 / data.age).toFixed(4)}</span></div>
+    `;
+            tooltip.style.display = 'block';
+        }
+
+        function handleMouseMove(e) {
+            if (!tooltip) return;
+            const offset = 15;
+
+            // Prevent tooltip from going off-screen
+            let left = e.clientX + offset;
+            let top = e.clientY + offset;
+
+            // Simple boundary check (optional, but good for UX)
+            if (left + 200 > window.innerWidth) left = e.clientX - 210;
+            if (top + 100 > window.innerHeight) top = e.clientY - 100;
+
+            tooltip.style.left = `${left}px`;
+            tooltip.style.top = `${top}px`;
+        }
+
+        function handleMouseLeave(e) {
+            if (!tooltip) return;
+            tooltip.style.display = 'none';
+        }
+
+
+        function renderTimeline() {
+            const maxAge = parseInt(maxAgeInput.value);
+            const currentAge = parseInt(currentAgeInput.value);
+            const decayRate = parseFloat(decayFactorInput.value);
+            const memoryStart = parseInt(memoryStartInput.value);
+
+            // Clear all containers
+            amnesiaContainer.innerHTML = '';
+            activeContainer.innerHTML = '';
+            futureContainer.innerHTML = '';
+
+            // PASS 1: Calculate Total Active Perception
+            let totalActivePerception = 0;
+            const effectiveStart = Math.min(memoryStart, currentAge + 1);
+
+            for (let age = effectiveStart; age <= currentAge; age++) {
+                totalActivePerception += calculatePerception(age, currentAge, decayRate);
+            }
+
+            // Update Analysis Result
+            updateAnalysis(totalActivePerception, currentAge, decayRate, memoryStart);
+
+            // DETERMINE REFERENCE WIDTH FOR SCALING
+            // On Desktop: Active Container is ~50vw.
+            // On Mobile: Active Container is ~90vw (full width with padding).
+            const isMobile = window.innerWidth <= 768;
+            const referenceWidthUnit = isMobile ? '90vw' : '50vw';
+
+            // PASS 2: Render
+            for (let age = 1; age <= maxAge; age++) {
+                let perceptionRaw = 1 / age;
+                let isFuture = age > currentAge;
+                let isAmnesia = age < memoryStart;
+
+                let displayValue = perceptionRaw;
+
+                // Apply Decay to Past/Present
+                if (!isFuture) {
+                    const yearsAgo = currentAge - age;
+                    displayValue = perceptionRaw * Math.pow(yearsAgo + 1, -decayRate);
+                }
+
+                // Visual Flags & Logic
+                let color = '';
+                let border = '';
+                let targetContainer = null;
+                let widthStyle = '';
+
+                if (isFuture) {
+                    // Future
+                    color = '#38bdf8';
+                    border = '1px dashed #0ea5e9';
+                    targetContainer = futureContainer;
+
+                    // Responsive Scale
+                    if (totalActivePerception > 0) {
+                        const relativeRatio = displayValue / totalActivePerception;
+                        widthStyle = `calc(${relativeRatio} * ${referenceWidthUnit})`;
+                    } else {
+                        widthStyle = '0px';
+                    }
+
+                } else if (isAmnesia) {
+                    // Amnesia
+                    color = '#484f58';
+                    border = '1px solid #30363d';
+                    targetContainer = amnesiaContainer;
+
+                    // Responsive Scale
+                    if (totalActivePerception > 0) {
+                        const relativeRatio = displayValue / totalActivePerception;
+                        widthStyle = `calc(${relativeRatio} * ${referenceWidthUnit})`;
+                    } else {
+                        widthStyle = '0px';
+                    }
+
+                } else {
+                    // Active Memory
+                    color = 'white';
+                    border = '1px solid rgba(255,255,255,0.1)';
+                    targetContainer = activeContainer;
+
+                    // Responsive Scale: Just Percentage of Parent
+                    if (totalActivePerception > 0) {
+                        const percentWidth = (displayValue / totalActivePerception) * 100;
+                        widthStyle = `${percentWidth}%`;
+                    } else {
+                        widthStyle = '0px';
+                    }
+                }
+
+                const block = document.createElement('div');
+                block.className = 'year-block';
+                block.style.width = widthStyle;
+
+                // Phase 18: Custom Tooltip Data
+                let typeLabel = isFuture ? 'Future' : (isAmnesia ? 'Amnesia' : 'Active Memory');
+                let percentOfTotal = 'N/A';
+                if (!isFuture && totalActivePerception > 0) {
+                    percentOfTotal = ((displayValue / totalActivePerception) * 100).toFixed(2) + '%';
+                } else if (isFuture && totalActivePerception > 0) {
+                    percentOfTotal = ((displayValue / totalActivePerception) * 100).toFixed(2) + '% (Est)';
+                }
+
+                // Attach Listeners
+                block.addEventListener('mouseenter', (e) => handleMouseEnter(e, {
+                    age: age,
+                    type: typeLabel,
+                    percent: percentOfTotal
+                }));
+                block.addEventListener('mousemove', handleMouseMove);
+                block.addEventListener('mouseleave', handleMouseLeave);
+
+                // Styles
+                if (isFuture) {
+                    block.style.background = `repeating-linear-gradient(45deg, #0f172a, #0f172a 10px, #162438 10px, #162438 20px)`;
+                    block.style.color = color;
+                    block.style.borderRight = border;
+                } else if (isAmnesia) {
+                    block.style.background = '#161b22';
+                    block.style.color = color;
+                    block.style.borderRight = border;
+                } else {
+                    block.style.background = 'linear-gradient(180deg, #1f6feb, #238636)';
+                    block.style.color = color;
+                    block.style.borderRight = border;
+                }
+
+                // Info (Keep readable text inside block if it fits, mostly for larger blocks)
+                // For very thin blocks, text is hidden by overflow:hidden in CSS usually.
+                const info = document.createElement('div');
+                info.className = 'year-info';
+
+                const label = document.createElement('span');
+                label.className = 'year-label';
+                label.innerText = `${age}`;
+
+                const percent = document.createElement('span');
+                percent.className = 'year-percentage';
+                percent.innerText = `${(displayValue * 100).toFixed(2)}%`;
+
+                info.appendChild(label);
+                info.appendChild(percent);
+
+                block.appendChild(info);
+
+                // Initial state for animation
+                block.style.opacity = '0';
+                block.style.transform = 'translateY(20px)';
+                block.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+                targetContainer.appendChild(block);
+                observer.observe(block);
+            }
+
+            // AUTO-SCROLL AMNESIA TO END (RIGHT)
+            requestAnimationFrame(() => {
+                amnesiaContainer.scrollLeft = amnesiaContainer.scrollWidth;
+            });
+        }
+
+        // Single Observer for all blocks
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+
+        function updateValues() {
+            maxAgeValue.innerText = maxAgeInput.value;
+            currentAgeValue.innerText = currentAgeInput.value;
+            decayFactorValue.innerText = decayFactorInput.value;
+            memoryStartValue.innerText = memoryStartInput.value;
+            renderTimeline();
+        }
+
+        maxAgeInput.addEventListener('input', updateValues);
+        currentAgeInput.addEventListener('input', updateValues);
+        decayFactorInput.addEventListener('input', updateValues);
+        memoryStartInput.addEventListener('input', updateValues);
+        if (compareAgeInput) compareAgeInput.addEventListener('input', updateValues);
+
+        // Handle Window Resize for Mobile Logic recalculation
+        window.addEventListener('resize', renderTimeline);
+
+        // Initial Render
+        updateValues();
+    </script>
+</body>
+
+</html>
