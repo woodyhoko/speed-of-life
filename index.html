@@ -467,7 +467,7 @@
             const perceptionRaw = 1 / age;
             const yearsAgo = currentAge - age;
             // R = At^-k. We use (yearsAgo + 1) safely.
-            return perceptionRaw * Math.pow(yearsAgo + 1, -decayRate);
+            return perceptionRaw * Math.pow(yearsAgo + 1, -decayRate * 1.5);
         }
 
         function updateAnalysis(totalActivePerception, currentAge, decayRate, memoryStart) {
