@@ -173,8 +173,12 @@
             border: 1px solid #30363d;
             width: 100%;
             overflow-x: auto;
-            /* Phase 21: Right Align Content on Desktop */
-            justify-content: flex-end;
+            /* Phase 21: Removed justify-content: flex-end to fix scroll */
+        }
+
+        /* Phase 22: Right Align via Margin (Safe for Scroll) */
+        .amnesia-section .year-block:first-child {
+            margin-left: auto;
         }
 
         /* 2. Active Memory Wrapper - CENTER */
@@ -354,6 +358,11 @@
                 /* Reset align for mobile */
             }
 
+            /* Reset dynamic margin for mobile */
+            .amnesia-section .year-block:first-child {
+                margin-left: 0;
+            }
+
             .amnesia-section,
             .active-section {
                 height: 140px;
@@ -477,7 +486,11 @@
 
             <!-- Wrapper 3: Future -->
             <div class="section-wrapper future-wrapper">
-                <div class="section-label">Future Perspective</div>
+                <div class="section-label">
+                    Future Perspective
+                    <span id="future-ratio"
+                        style="color: #58a6ff; font-weight: normal; margin-left: 10px; font-size: 0.8rem; text-transform: none;"></span>
+                </div>
                 <div id="future-container" class="timeline-section future-section">
                     <!-- Future Blocks -->
                 </div>
@@ -619,6 +632,24 @@
 
             // Update Analysis Result
             updateAnalysis(totalActivePerception, currentAge, decayRate, memoryStart);
+
+            // PASS 1.5: Calculate Total FUTURE Perception (for Ratio)
+            let totalFuturePerception = 0;
+            for (let age = currentAge + 1; age <= maxAge; age++) {
+                let perception = 1 / age; // Future doesn't decay (it's not memory)
+                totalFuturePerception += perception;
+            }
+
+            // Update Future Ratio Label
+            const futureRatioSpan = document.getElementById('future-ratio');
+            if (futureRatioSpan) {
+                if (totalActivePerception > 0) {
+                    const ratio = (totalFuturePerception / totalActivePerception) * 100;
+                    futureRatioSpan.innerText = `(${ratio.toFixed(0)}% of Active Memory)`;
+                } else {
+                    futureRatioSpan.innerText = '';
+                }
+            }
 
             // DETERMINE REFERENCE WIDTH FOR SCALING
             // On Desktop: Active Container is ~50vw.
