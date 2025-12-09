@@ -98,20 +98,18 @@
         }
 
         /* 
-       PHASE 14 & 15: GRID LAYOUT + WRAPPING FUTURE
-       - Columns: Left Spacer (25%) | Center (50%) | Right Spacer (25%)
-       - Row 1: Amnesia | Active
-       - Row 2: Future (Wrapping)
+       PHASE 20: WRAPPERS & LABELS 
+       - Grid layout now applies to .section-wrapper
+       - Labels are inside wrappers
     */
 
         /* Main Wrapper - Grid System */
         .timeline-wrapper {
             display: grid;
             grid-template-columns: 1fr 50% 1fr;
-            /* Center is strict 50% */
             grid-template-rows: auto auto;
-            /* Two rows */
             align-items: center;
+            /* Vertical alignment */
             justify-items: center;
             gap: 15px;
             margin-top: 2rem;
@@ -122,44 +120,73 @@
             padding-bottom: 2rem;
         }
 
-        /* Base Card Style */
+        /* Common Wrapper Styling */
+        .section-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            /* Space between label and box */
+            min-width: 0;
+            /* GRID FIX: Prevent blowout from children */
+        }
+
+        /* Labels */
+        .section-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Base Card Style (The visual box) */
         .timeline-section {
             display: flex;
             flex-direction: row;
             align-items: stretch;
-            height: 200px;
-            /* REDUCED HEIGHT (Phase 17) - Was 300px */
+            height: 140px;
+            /* REDUCED HEIGHT (Phase 21) - Was 200px */
             border-radius: 8px;
             overflow: hidden;
             transition: all 0.3s ease;
             position: relative;
             width: 100%;
-            /* Fill their grid cell */
         }
 
-        /* 1. Amnesia Panel - LEFT */
-        .amnesia-section {
+        /* 1. Amnesia Wrapper - LEFT */
+        .amnesia-wrapper {
             grid-column: 1;
             grid-row: 1;
             justify-self: end;
-            /* Align to the RIGHT of the left column */
+            /* Align to the RIGHT of left col */
+            align-items: flex-end;
+            /* Align inner content (label/box) to right */
 
-            background: rgba(48, 54, 61, 0.4);
-            border: 1px solid #30363d;
-
-            /* Shrink Wrap Logic */
-            width: fit-content;
+            /* FIX: Avoid fit-content issues. Fill Column 1. */
+            width: 100%;
             max-width: 100%;
             min-width: 150px;
-
-            overflow-x: auto;
         }
 
-        /* 2. Active Memory Panel - CENTER */
-        .active-section {
+        .amnesia-section {
+            background: rgba(48, 54, 61, 0.4);
+            border: 1px solid #30363d;
+            width: 100%;
+            overflow-x: auto;
+            /* Phase 21: Right Align Content on Desktop */
+            justify-content: flex-end;
+        }
+
+        /* 2. Active Memory Wrapper - CENTER */
+        .active-wrapper {
             grid-column: 2;
             grid-row: 1;
+            width: 100%;
+            align-items: flex-start;
+            /* Label left aligned */
+        }
 
+        .active-section {
             background: rgba(13, 17, 23, 0.9);
             border: 2px solid #58a6ff;
             box-shadow: 0 0 40px rgba(88, 166, 255, 0.15);
@@ -167,31 +194,28 @@
             overflow: hidden;
         }
 
-        /* 3. Future Panel - BOTTOM (Wrapping) */
-        .future-section {
+        /* 3. Future Wrapper - BOTTOM (Aligned with Active) */
+        .future-wrapper {
             grid-column: 2;
-            /* COLUMN 2 (Same as Active) */
             grid-row: 2;
-            /* ROW 2 */
+            width: 100%;
+            align-items: flex-start;
+        }
 
+        .future-section {
             background: rgba(0, 0, 0, 0.6);
             border: 1px dashed #30363d;
 
-            /* Phase 15: WRAP CONTENT */
             display: flex;
             flex-wrap: wrap;
-            /* WRAP enabled */
             align-content: flex-start;
-            /* Pack to top */
             justify-content: flex-start;
 
             height: auto;
-            /* Allow Growth */
-            min-height: 200px;
-            /* Match others initially (Phase 17 update) */
+            min-height: 140px;
+            /* Match standard height */
 
             overflow-x: visible;
-            /* No scrollbar */
             padding: 5px;
             box-sizing: border-box;
         }
@@ -218,7 +242,6 @@
 
         .year-block {
             height: 100%;
-            /* Width set via JS */
             background: linear-gradient(180deg, #1f6feb, #238636);
             display: flex;
             flex-direction: column;
@@ -237,8 +260,8 @@
 
         /* Specific fix for Future Blocks in wrapping container */
         .future-section .year-block {
-            height: 200px;
-            /* REDUCED HEIGHT (Phase 17) - Was 300px */
+            height: 140px;
+            /* REDUCED HEIGHT */
             border-bottom: 1px dashed #333;
         }
 
@@ -295,7 +318,7 @@
             opacity: 0;
         }
 
-        /* PHASE 18: MOBILE RESPONSIVENESS */
+        /* PHASE 18: MOBILE RESPONSIVENESS (Updated for Phase 20 Wrappers) */
         @media (max-width: 768px) {
             .timeline-wrapper {
                 grid-template-columns: 1fr;
@@ -305,32 +328,42 @@
                 gap: 2rem;
             }
 
-            .amnesia-section,
-            .active-section {
-                grid-column: 1;
-                /* Force to column 1 */
-                grid-row: auto;
-                width: 100%;
-                height: 200px;
-                /* Fixed height for scrollable panels */
-                max-width: 100%;
-                justify-self: stretch;
-            }
-
-            /* FIX: Let Future Panel grow on mobile */
-            .future-section {
+            /* Target wrappers now */
+            .amnesia-wrapper,
+            .active-wrapper,
+            .future-wrapper {
                 grid-column: 1;
                 grid-row: auto;
                 width: 100%;
                 height: auto;
-                min-height: 200px;
                 max-width: 100%;
                 justify-self: stretch;
+                align-items: flex-start;
+                /* Align labels left on mobile */
             }
 
-            .amnesia-section {
+            .amnesia-wrapper {
                 justify-self: stretch;
-                /* Override previous 'end' alignment */
+                align-items: flex-start;
+                /* Override right-align */
+            }
+
+            /* Sections inside wrappers */
+            .amnesia-section {
+                justify-content: flex-start;
+                /* Reset align for mobile */
+            }
+
+            .amnesia-section,
+            .active-section {
+                height: 140px;
+                /* Fixed height for scrollable */
+            }
+
+            /* FIX: Let Future Panel grow on mobile */
+            .future-section {
+                height: auto;
+                min-height: 140px;
             }
         }
 
@@ -343,10 +376,8 @@
             padding: 12px;
             border-radius: 8px;
             pointer-events: none;
-            /* Let mouse pass through */
             z-index: 9999;
             display: none;
-            /* Hidden by default */
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             font-size: 0.9rem;
             line-height: 1.4;
@@ -400,6 +431,13 @@
                 <input type="range" id="decay-factor" min="0" max="2.0" step="0.05" value="1" />
             </div>
 
+            <div class="control-group checkbox-group" style="display: flex; align-items: center; padding-top: 15px;">
+                <label for="enable-decay" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="enable-decay" style="width: 20px; height: 20px;">
+                    <span>Enable Memory Decay</span>
+                </label>
+            </div>
+
             <div class="control-group">
                 <label for="memory-start">Memory Start Age: <span id="memory-start-value">6</span></label>
                 <input type="range" id="memory-start" min="0" max="10" step="1" value="6" />
@@ -420,15 +458,31 @@
         </div>
 
         <div class="timeline-wrapper">
-            <div id="amnesia-container" class="timeline-section amnesia-section">
-                <!-- Amnesia Blocks -->
+
+            <!-- Wrapper 1: Amnesia -->
+            <div class="section-wrapper amnesia-wrapper">
+                <div class="section-label">Before Memory</div>
+                <div id="amnesia-container" class="timeline-section amnesia-section">
+                    <!-- Amnesia Blocks -->
+                </div>
             </div>
-            <div id="active-container" class="timeline-section active-section">
-                <!-- Active Memory Blocks -->
+
+            <!-- Wrapper 2: Active -->
+            <div class="section-wrapper active-wrapper">
+                <div class="section-label">Active Memory</div>
+                <div id="active-container" class="timeline-section active-section">
+                    <!-- Active Memory Blocks -->
+                </div>
             </div>
-            <div id="future-container" class="timeline-section future-section">
-                <!-- Future Blocks -->
+
+            <!-- Wrapper 3: Future -->
+            <div class="section-wrapper future-wrapper">
+                <div class="section-label">Future Perspective</div>
+                <div id="future-container" class="timeline-section future-section">
+                    <!-- Future Blocks -->
+                </div>
             </div>
+
         </div>
 
         <footer>
@@ -440,7 +494,7 @@
 
     </div>
     <script>
-        // Main JS Logic (Phase 18 Updated)
+        // Main JS Logic (Phase 19 Updated)
         const maxAgeInput = document.getElementById('max-age');
         const maxAgeValue = document.getElementById('max-age-value');
         const currentAgeInput = document.getElementById('current-age');
@@ -449,6 +503,9 @@
         const decayFactorValue = document.getElementById('decay-factor-value');
         const memoryStartInput = document.getElementById('memory-start');
         const memoryStartValue = document.getElementById('memory-start-value');
+
+        // Phase 19: Toggle
+        const enableDecayCheckbox = document.getElementById('enable-decay');
 
         // Analysis Inputs
         const compareAgeInput = document.getElementById('compare-age');
@@ -467,7 +524,41 @@
             const perceptionRaw = 1 / age;
             const yearsAgo = currentAge - age;
             // R = At^-k. We use (yearsAgo + 1) safely.
-            return perceptionRaw * Math.pow(yearsAgo + 1, -decayRate * 1.5);
+            return perceptionRaw * Math.pow(yearsAgo + 1, -decayRate);
+        }
+
+        // Tooltip Handlers
+        function handleMouseEnter(e, data) {
+            if (!tooltip) return;
+
+            tooltip.innerHTML = `
+        <span class="tooltip-header">Age ${data.age}</span>
+        <div class="tooltip-row"><span>Type:</span> <strong>${data.type}</strong></div>
+        <div class="tooltip-row"><span>Impact:</span> <strong>${data.percent}</strong></div>
+        <div class="tooltip-row"><span>Raw Duration:</span> <span>${(1 / data.age).toFixed(4)}</span></div>
+    `;
+            tooltip.style.display = 'block';
+        }
+
+        function handleMouseMove(e) {
+            if (!tooltip) return;
+            const offset = 15;
+
+            // Prevent tooltip from going off-screen
+            let left = e.clientX + offset;
+            let top = e.clientY + offset;
+
+            // Simple boundary check
+            if (left + 200 > window.innerWidth) left = e.clientX - 210;
+            if (top + 100 > window.innerHeight) top = e.clientY - 100;
+
+            tooltip.style.left = `${left}px`;
+            tooltip.style.top = `${top}px`;
+        }
+
+        function handleMouseLeave(e) {
+            if (!tooltip) return;
+            tooltip.style.display = 'none';
         }
 
         function updateAnalysis(totalActivePerception, currentAge, decayRate, memoryStart) {
@@ -495,45 +586,22 @@
             }
         }
 
-        // Tooltip Handlers
-        function handleMouseEnter(e, data) {
-            if (!tooltip) return;
-
-            tooltip.innerHTML = `
-        <span class="tooltip-header">Age ${data.age}</span>
-        <div class="tooltip-row"><span>Type:</span> <strong>${data.type}</strong></div>
-        <div class="tooltip-row"><span>Impact:</span> <strong>${data.percent}</strong></div>
-        <div class="tooltip-row"><span>Raw Duration:</span> <span>${(1 / data.age).toFixed(4)}</span></div>
-    `;
-            tooltip.style.display = 'block';
-        }
-
-        function handleMouseMove(e) {
-            if (!tooltip) return;
-            const offset = 15;
-
-            // Prevent tooltip from going off-screen
-            let left = e.clientX + offset;
-            let top = e.clientY + offset;
-
-            // Simple boundary check (optional, but good for UX)
-            if (left + 200 > window.innerWidth) left = e.clientX - 210;
-            if (top + 100 > window.innerHeight) top = e.clientY - 100;
-
-            tooltip.style.left = `${left}px`;
-            tooltip.style.top = `${top}px`;
-        }
-
-        function handleMouseLeave(e) {
-            if (!tooltip) return;
-            tooltip.style.display = 'none';
-        }
-
 
         function renderTimeline() {
             const maxAge = parseInt(maxAgeInput.value);
             const currentAge = parseInt(currentAgeInput.value);
-            const decayRate = parseFloat(decayFactorInput.value);
+
+            // Phase 19: Checkbox Logic
+            let decayRate = parseFloat(decayFactorInput.value);
+            if (enableDecayCheckbox && !enableDecayCheckbox.checked) {
+                decayRate = 0; // Disable decay logic effectively
+                // Visual feedback
+                decayFactorInput.disabled = true;
+                activeContainer.style.opacity = '1';
+            } else {
+                decayFactorInput.disabled = false;
+            }
+
             const memoryStart = parseInt(memoryStartInput.value);
 
             // Clear all containers
@@ -715,6 +783,7 @@
         decayFactorInput.addEventListener('input', updateValues);
         memoryStartInput.addEventListener('input', updateValues);
         if (compareAgeInput) compareAgeInput.addEventListener('input', updateValues);
+        if (enableDecayCheckbox) enableDecayCheckbox.addEventListener('change', updateValues);
 
         // Handle Window Resize for Mobile Logic recalculation
         window.addEventListener('resize', renderTimeline);
